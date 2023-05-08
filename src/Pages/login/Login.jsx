@@ -19,7 +19,7 @@ const Login = () => {
     try {
       const response = await axios.post('http://localhost:8081/App/login', { email, password });
     const { user, token, role } = response.data;
-    localStorage.setItem('token', "Bearer "+token);
+    localStorage.setItem('token',token);
     localStorage.setItem('role', role);
     localStorage.setItem('user', JSON.stringify(user));
     

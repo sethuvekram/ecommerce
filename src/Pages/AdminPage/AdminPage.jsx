@@ -5,22 +5,57 @@ import { Link } from "react-router-dom";
 import axios from "axios";
 const AdminPage = () => {
   // const [categories, setCategories] = useState([]);
-  const [products, setProducts] = useState([]);
+  const [users, setUsers] = useState([]);
+
+  
  
-  useEffect(() => {
-    axios
-      .get("http://localhost:8081/Category1/getAllProducts", {
-        headers: {
-          Authorization: localStorage.getItem("token"),
-        },
-      })
-      .then((response) => {
-        setProducts(response.data);
-      })
-      .catch((error) => {
-        console.error(error);
-      });
-  }, []);
+  // useEffect(() => {
+  //   const fetchUsers = async () => {
+  //     try {
+  //       const response = await axios.get(
+  //         "http://localhost:8081/users",
+  //         {
+  //           headers: {
+  //             Authorization: localStorage.getItem("token"),
+  //             "Content-Type": "application/json",
+  //           },
+  //           params: {
+  //             role: "admin",
+  //           },
+  //         }
+  //       );
+  //       setUsers(response.data);
+  //     } catch (error) {
+  //       console.error(error);
+  //     }
+  //   };
+
+  //   fetchUsers();
+  // }, []);
+  const handleDeleteUser = async (userId) => {
+    try {
+      const response = await axios.delete(
+        `http://localhost:8081/users/${userId}`,
+        {
+          headers: {
+            Authorization: localStorage.getItem("token"),
+            "Content-Type": "application/json",
+          },
+        }
+      );
+      console.log(response);
+      // Remove the deleted user from the list
+      const updatedUsers = users.filter((user) => user.id !== userId);
+      setUsers(updatedUsers);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const handleEditUser = async (userId) => {
+    // TODO: Implement the edit user functionality
+    console.log(`Editing user with ID: ${userId}`);
+  };
 
   return (
     <div className="admin-page">
@@ -41,7 +76,7 @@ const AdminPage = () => {
         <table className="admin-page__table">
           <thead>
             <tr>
-              <th>User ID</th>
+              <th >User ID</th>
               <th>Name</th>
               <th>Email</th>
               <th>Role</th>
@@ -49,67 +84,30 @@ const AdminPage = () => {
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <td>1</td>
-              <td>John Doe</td>
-              <td>john.doe@example.com</td>
-              <td>Buyer</td>
-              <td>
-                <button>Edit</button>
-                <button>Delete</button>
-              </td>
-            </tr>
-            <tr>
-              <td>2</td>
-              <td>Jane Smith</td>
-              <td>jane.smith@example.com</td>
-              <td>Seller</td>
-              <td>
-                <button>Edit</button>
-                <button>Delete</button>
-              </td>
-            </tr>
-            <tr>
-              <td>3</td>
-              <td>Bob Johnson</td>
-              <td>bob.johnson@example.com</td>
-              <td>Admin</td>
-              <td>
-                <button>Edit</button>
-                <button>Delete</button>
-              </td>
-            </tr>
+            {users.map((user) => (
+              <tr key={user.id}>
+                <td>{user.id}</td>
+                <td>{user.name}</td>
+                <td>{user.email}</td>
+                <td>{user.role}</td>
+                <td>
+                  <button onClick={() => handleEditUser(user.id)}>Edit</button>
+                  <button onClick={() => handleDeleteUser(user.id)}>Delete</button>
+                </td>
+              </tr>
+            ))}
           </tbody>
         </table>
       </div>
       <div className="admin-page__reports">
-        <h2>Reports</h2>
+        {/* <h2>Reports</h2>
         <ul className="admin-page__list">
           <li>Number of active users: 100</li>
           <li>Total sales: $10,000</li>
           <li>Number of items sold: 500</li>
-        </ul>
+        </ul> */}
       </div>
-      <table>
-      <thead>
-        <tr>
-          <th>Product ID</th>
-          <th>Product Name</th>
-          <th>Price</th>
-          <th>Description</th>
-        </tr>
-      </thead>
-      <tbody>
-        {products.map((product) => (
-          <tr key={product.id}>
-            <td>{product.id}</td>
-            <td>{product.name}</td>
-            <td>{product.price}</td>
-            <td>{product.description}</td>
-          </tr>
-        ))}
-      </tbody>
-    </table>
+      
     </div>
   );
 };
