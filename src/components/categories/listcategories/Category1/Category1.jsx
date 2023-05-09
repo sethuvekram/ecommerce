@@ -16,7 +16,7 @@ function Category1(props) {
       .catch(error => {
         console.log(error);
       });
-  }, [props.match.params.id]);
+  }, );
 
   if (!category) {
     return <div>Loading...</div>;

@@ -4,42 +4,24 @@ import InventoryIcon from "@mui/icons-material/Inventory";
 import { Link } from "react-router-dom";
 import axios from "axios";
 const AdminPage = () => {
-  // const [categories, setCategories] = useState([]);
   const [users, setUsers] = useState([]);
-
-  
- 
-  // useEffect(() => {
-  //   const fetchUsers = async () => {
-  //     try {
-  //       const response = await axios.get(
-  //         "http://localhost:8081/users",
-  //         {
-  //           headers: {
-  //             Authorization: localStorage.getItem("token"),
-  //             "Content-Type": "application/json",
-  //           },
-  //           params: {
-  //             role: "admin",
-  //           },
-  //         }
-  //       );
-  //       setUsers(response.data);
-  //     } catch (error) {
-  //       console.error(error);
-  //     }
-  //   };
-
-  //   fetchUsers();
-  // }, []);
+  useEffect(() => {
+    axios
+      .get("http://192.168.29.234:8081/Admin/getAllUsers", {
+        headers: {
+          Authorization: "Bearer " + localStorage.getItem("token"),
+        },
+      })
+      
+      .then((response) => setUsers(response.data));
+  }, []);
   const handleDeleteUser = async (userId) => {
     try {
       const response = await axios.delete(
-        `http://localhost:8081/users/${userId}`,
+        `http://192.168.29.234:8081/Admin/getUserById/${userId}`,
         {
           headers: {
             Authorization: localStorage.getItem("token"),
-            "Content-Type": "application/json",
           },
         }
       );
@@ -76,23 +58,28 @@ const AdminPage = () => {
         <table className="admin-page__table">
           <thead>
             <tr>
-              <th >User ID</th>
+              <th>User ID</th>
               <th>Name</th>
               <th>Email</th>
+              <th>Password</th>
               <th>Role</th>
               <th>Actions</th>
             </tr>
           </thead>
           <tbody>
             {users.map((user) => (
-              <tr key={user.id}>
-                <td>{user.id}</td>
+              <tr key={user.userId}>
+                <td>{user.userId}</td>
                 <td>{user.name}</td>
                 <td>{user.email}</td>
+
+                <td>{user.password}</td>
                 <td>{user.role}</td>
                 <td>
                   <button onClick={() => handleEditUser(user.id)}>Edit</button>
-                  <button onClick={() => handleDeleteUser(user.id)}>Delete</button>
+                  <button onClick={() => handleDeleteUser(user.id)}>
+                    Delete
+                  </button>
                 </td>
               </tr>
             ))}
@@ -100,14 +87,8 @@ const AdminPage = () => {
         </table>
       </div>
       <div className="admin-page__reports">
-        {/* <h2>Reports</h2>
-        <ul className="admin-page__list">
-          <li>Number of active users: 100</li>
-          <li>Total sales: $10,000</li>
-          <li>Number of items sold: 500</li>
-        </ul> */}
+     
       </div>
-      
     </div>
   );
 };

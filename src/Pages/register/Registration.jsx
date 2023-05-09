@@ -34,7 +34,7 @@ const Registration = () => {
    
     try {
       const response = await axios.post(
-        "http://localhost:8081/App/User",
+        "http://192.168.29.234:8081/User/register",
         userDetails,
         {
           headers: {

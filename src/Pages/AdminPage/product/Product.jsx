@@ -1,25 +1,27 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
 import "./Product.scss";
+import backgroundImg from "../../../assets/bgi3.jpg";
 function Product() {
-  const [category, setCategory] = useState("");
-  const [name, setName] = useState("");
-  const [price, setPrice] = useState("");
-  const [description, setDescription] = useState("");
   const [products, setProducts] = useState([]);
+  const [edit, setEdit] = useState(true);
 
+  const [values, setValues] = useState({});
+  const handleChange = (e) => {
+    setValues({ ...values, [e.target.name]: e.target.value });
+  };
+  const styles = {
+    background: `url(${backgroundImg})`,
+    /* additional styling properties */
+  };
   const handleSubmit = (e) => {
     e.preventDefault();
 
+    console.log(values);
     axios
       .post(
-        "http://localhost:8081/Category1/addProduct",
-        {
-          category: category,
-          name: name,
-          price: price,
-          description: description,
-        },
+        "http://192.168.29.234:8081/Admin/addProduct",
+        values,
 
         {
           headers: {
@@ -31,21 +33,80 @@ function Product() {
         console.log(res.data);
         alert("Product added successfully!");
         fetchProducts();
+        setValues({});
       })
+
       .catch((err) => {
         console.log(err);
         alert("Error adding product");
       });
   };
 
+  const update = (e) => {
+    e.preventDefault();
+
+    axios
+      .put(
+        "http://192.168.29.234:8081/Admin/updateProduct",
+        values,
+
+        {
+          headers: {
+            Authorization: "Bearer " + localStorage.getItem("token"),
+          },
+        }
+      )
+      .then((res) => {
+        console.log(res.data);
+        alert("Product updated successfully!");
+        fetchProducts();
+
+        setValues({});
+        setEdit(true);
+      })
+      .catch((err) => {
+        console.log(err);
+        alert("Error updating product");
+      });
+  };
+
+  const handleEdit = (product) => {
+    setEdit(false);
+
+    setValues(product);
+  };
+
+  const handleDeleteProduct = (product) => {
+    console.log(product);
+    if (window.confirm("Are you sure you want to delete this product?")) {
+      axios
+        .delete(
+          "http://192.168.29.234:8081/Admin/deleteProduct/" + `${product.id}`,
+          {
+            headers: {
+              Authorization: "Bearer " + localStorage.getItem("token"),
+            },
+          }
+        )
+        .then((res) => {
+          console.log(res.data);
+          alert("Product deleted successfully!");
+          fetchProducts();
+        })
+        .catch((err) => {
+          console.log(err);
+          alert("Error deleting product");
+        });
+    }
+  };
+
   const fetchProducts = async () => {
     try {
       const response = await axios.get(
-        "http://localhost:8081/Category1/getAllProducts",
+        "http://192.168.29.234:8081/Admin/getAllProducts",
         {
           headers: {
-            Authorization: "Bearer " +localStorage.getItem("token"),
-            
+            Authorization: "Bearer " + localStorage.getItem("token"),
           },
         }
       );
@@ -56,20 +117,19 @@ function Product() {
   };
 
   useEffect(() => {
-    
     fetchProducts();
   }, []);
 
   return (
-    <div className="product-page">
-      <h2>Add Product</h2>
+    <div className="product-page" style={styles}>
+      <h2 id="head1">Add Product</h2>
       <form onSubmit={handleSubmit}>
         <label>Select a value:</label>
         <select
           id="my-selector"
           name="category"
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
+          value={values.category}
+          onChange={handleChange}
         >
           <option value="">--Please select a category--</option>
           <option value="Category1">Category1</option>
@@ -88,8 +148,9 @@ function Product() {
         <input
           type="text"
           id="name"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
+          value={values.name}
+          name="name"
+          onChange={handleChange}
         />
         <br />
         <br />
@@ -98,8 +159,9 @@ function Product() {
         <input
           type="number"
           id="price"
-          value={price}
-          onChange={(e) => setPrice(e.target.value)}
+          name="price"
+          value={values.price}
+          onChange={handleChange}
         />
         <br />
         <br />
@@ -107,21 +169,24 @@ function Product() {
         <label>Description:</label>
         <textarea
           id="description"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
+          name="description"
+          value={values.description}
+          onChange={handleChange}
         ></textarea>
         <br />
         <br />
         <br />
         <div className="btn">
-          <button type="submit" id="sbtn">
-            Add Product
+          <button id="sbtn" onClick={edit ? handleSubmit : update}>
+            {edit ? "Submit" : "Update"}
           </button>
         </div>
       </form>
+    
 
       <div className="product-list">
-        <h2>Product List</h2>
+        <h2 id="head2">Product List</h2>
+        <br />
         <table>
           <thead>
             <tr>
@@ -131,6 +196,7 @@ function Product() {
               <th>Price</th>
 
               <th>Description</th>
+              <th>Actions</th>
             </tr>
           </thead>
           <tbody>
@@ -142,6 +208,12 @@ function Product() {
                 <td>{product.name}</td>
                 <td>{product.price}</td>
                 <td>{product.description}</td>
+                <td>
+                  <button onClick={() => handleEdit(product)}>Edit</button>
+                  <button onClick={() => handleDeleteProduct(product)}>
+                    Delete
+                  </button>
+                </td>
               </tr>
             ))}
           </tbody>

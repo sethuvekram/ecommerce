@@ -17,7 +17,7 @@ const Login = () => {
     event.preventDefault();
     // console.log(values);
     try {
-      const response = await axios.post('http://localhost:8081/App/login', { email, password });
+      const response = await axios.post('http://192.168.29.234:8081/User/login', { email, password });
     const { user, token, role } = response.data;
     localStorage.setItem('token',token);
     localStorage.setItem('role', role);
